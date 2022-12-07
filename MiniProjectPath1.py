@@ -1,4 +1,5 @@
 import pandas
+import numpy as np
 
 ''' 
 The following is the starting code for path1 for data reading to make your first step easier.
