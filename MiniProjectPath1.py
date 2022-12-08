@@ -1,5 +1,6 @@
 import pandas
 import numpy as np
+import regex as re
 
 ''' 
 The following is the starting code for path1 for data reading to make your first step easier.
@@ -13,6 +14,9 @@ dataset_1['Williamsburg Bridge']  = pandas.to_numeric(dataset_1['Williamsburg Br
 dataset_1['Williamsburg Bridge']  = pandas.to_numeric(dataset_1['Williamsburg Bridge'].replace(',','', regex=True))
 
 print(dataset_1.to_string()) #This line will print out your data
+
+# Problem 1
+
 print(dataset_1.mad())
 print(dataset_1.median())
 print(dataset_1.mean())
@@ -43,3 +47,48 @@ for Bridge in Bridges:
         MeanDeviation.append(abs(Datapoint - Bridge.mean()))
     AvgDeviation.append(sum(MeanDeviation)/NumEl)
 print("Avg Deviation ->", AvgDeviation)
+
+# Problem 2
+
+HiTemp = data[:, 2]
+LoTemp = data[:, 3]
+Precip = data[:, 4]
+TotalPopString = data[:, 9]
+TotalPopInt = []
+AvgTemp = np.zeros((len(HiTemp)))
+
+for Day in range(len(HiTemp)):
+    AvgTemp[Day] = (HiTemp[Day] + LoTemp[Day])/2
+    TotalPopInt.append(int(re.sub(r',', '', TotalPopString[Day])))
+
+
+NewData = np.column_stack((AvgTemp, Precip, TotalPopInt))
+AvgOfAvgTemp = np.mean(AvgTemp)
+HighTempNoPrecip = []
+HighTempPrecip = []
+LowTempNoPrecip = []
+LowTempPrecip = []
+
+for i in range(len(HiTemp)):
+    if AvgTemp[i] >= AvgOfAvgTemp and Precip[i] <= .02:
+        HighTempNoPrecip.append(TotalPopInt[i])
+    elif AvgTemp[i] >= AvgOfAvgTemp and Precip[i] > .02:
+        HighTempPrecip.append(TotalPopInt[i])
+    elif AvgTemp[i] < AvgOfAvgTemp and Precip[i] <= .02:
+        LowTempNoPrecip.append(TotalPopInt[i])
+    elif AvgTemp[i] < AvgOfAvgTemp and Precip[i] > .02:
+        LowTempPrecip.append(TotalPopInt[i])
+
+
+print(NewData)
+print(AvgOfAvgTemp)
+
+print(HighTempNoPrecip)
+print(HighTempPrecip)
+print(LowTempNoPrecip)
+print(LowTempPrecip)
+
+print(np.mean(HighTempNoPrecip))
+print(np.mean(HighTempPrecip))
+print(np.mean(LowTempNoPrecip))
+print(np.mean(LowTempPrecip))
