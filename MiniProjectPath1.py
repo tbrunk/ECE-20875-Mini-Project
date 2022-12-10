@@ -1,6 +1,8 @@
 import pandas
 import numpy as np
 import regex as re
+import math as ma
+from sklearn.mixture import GaussianMixture
 
 ''' 
 The following is the starting code for path1 for data reading to make your first step easier.
@@ -62,7 +64,6 @@ for Day in range(len(HiTemp)):
     TotalPopInt.append(int(re.sub(r',', '', TotalPopString[Day])))
 
 
-NewData = np.column_stack((AvgTemp, Precip, TotalPopInt))
 AvgOfAvgTemp = np.mean(AvgTemp)
 HighTempNoPrecip = []
 HighTempPrecip = []
@@ -78,17 +79,178 @@ for i in range(len(HiTemp)):
         LowTempNoPrecip.append(TotalPopInt[i])
     elif AvgTemp[i] < AvgOfAvgTemp and Precip[i] > .02:
         LowTempPrecip.append(TotalPopInt[i])
+print("\nBeginning of problem 2\n")
+print("The average temperature of our data set:", AvgOfAvgTemp)
 
+print("Total people crossing the bridges with high temperature and low precipitation -> ", HighTempNoPrecip)
+print("Total people crossing the bridges with high temperature and high precipitation -> ", HighTempPrecip)
+print("Total people crossing the bridges with low temperature and low precipitation -> ", LowTempNoPrecip)
+print("Total people crossing the bridges with low temperature and high precipitation -> ", LowTempPrecip)
+print()
 
-print(NewData)
-print(AvgOfAvgTemp)
+print("The average amount of bikers crossing the bridges with high temp and low precipitation -> ", np.mean(HighTempNoPrecip))
+print("The average amount of bikers crossing the bridges with high temp and high precipitation -> ", np.mean(HighTempPrecip))
+print("The average amount of bikers crossing the bridges with low temp and low precipitation -> ", np.mean(LowTempNoPrecip))
+print("The average amount of bikers crossing the bridges with low temp and high precipitation -> ", np.mean(LowTempPrecip))
 
-print(HighTempNoPrecip)
-print(HighTempPrecip)
-print(LowTempNoPrecip)
-print(LowTempPrecip)
+HiLoPrecip_NoPrecip = LowTempNoPrecip + HighTempPrecip
 
-print(np.mean(HighTempNoPrecip))
-print(np.mean(HighTempPrecip))
-print(np.mean(LowTempNoPrecip))
-print(np.mean(LowTempPrecip))
+range1 = (np.mean(LowTempPrecip) + np.mean(HighTempPrecip)) / 2
+range2 = (np.mean(HighTempPrecip) + np.mean(LowTempNoPrecip)) / 2
+range3 = (np.mean(LowTempNoPrecip) + np.mean(HighTempNoPrecip)) / 2
+
+conf_matrix = [[0]*4 for j in range(4)]
+
+i = 0
+while i < len(LowTempPrecip):
+    if LowTempPrecip[i] < range1:
+        conf_matrix[0][0] += 1
+    elif LowTempPrecip[i] < range2 and LowTempPrecip[i] >= range1:
+        conf_matrix[1][0] += 1
+    elif LowTempPrecip[i] < range3 and LowTempPrecip[i] >= range2:
+        conf_matrix[2][0] += 1
+    elif LowTempPrecip[i] >= range3:
+        conf_matrix[3][0] += 1
+    i += 1
+
+i = 0
+while i < len(HighTempPrecip):
+    if HighTempPrecip[i] < range1:
+        conf_matrix[0][1] += 1
+    elif HighTempPrecip[i] < range2 and HighTempPrecip[i] >= range1:
+        conf_matrix[1][1] += 1
+    elif HighTempPrecip[i] < range3 and HighTempPrecip[i] >= range2:
+        conf_matrix[2][1] += 1
+    elif HighTempPrecip[i] >= range3:
+        conf_matrix[3][1] += 1
+    i += 1
+
+i = 0
+while i < len(LowTempNoPrecip):
+    if LowTempNoPrecip[i] < range1:
+        conf_matrix[0][2] += 1
+    elif LowTempNoPrecip[i] < range2 and LowTempNoPrecip[i] >= range1:
+        conf_matrix[1][2] += 1
+    elif LowTempNoPrecip[i] < range3 and LowTempNoPrecip[i] >= range2:
+        conf_matrix[2][2] += 1
+    elif LowTempNoPrecip[i] >= range3:
+        conf_matrix[3][2] += 1
+    i += 1
+
+i = 0
+while i < len(HighTempNoPrecip):
+    if HighTempNoPrecip[i] < range1:
+        conf_matrix[0][3] += 1
+    elif HighTempNoPrecip[i] < range2 and HighTempNoPrecip[i] >= range1:
+        conf_matrix[1][3] += 1
+    elif HighTempNoPrecip[i] < range3 and HighTempNoPrecip[i] >= range2:
+        conf_matrix[2][3] += 1
+    elif HighTempNoPrecip[i] >= range3:
+        conf_matrix[3][3] += 1
+    i += 1
+
+conf_matrix = np.array(conf_matrix)
+print("Confusion matrix with 4 subgroups")
+print(conf_matrix)
+
+accuracy = (conf_matrix[0][0] + conf_matrix[1][1] + conf_matrix[2][2] + conf_matrix[3][3]) / sum(sum(conf_matrix))
+
+print("The accuracy of our classifications into 4 subgroups", accuracy)
+
+# New Confusion Matrix
+new_range1 = (np.mean(HiLoPrecip_NoPrecip) + np.mean(LowTempPrecip)) / 2
+new_range2 = (np.mean(HighTempNoPrecip) + np.mean(HiLoPrecip_NoPrecip)) / 2
+
+new_conf_matrix = [[0]*3 for j in range(3)]
+
+i = 0
+while i < len(LowTempPrecip):
+    if LowTempPrecip[i] < new_range1:
+         new_conf_matrix[0][0] += 1
+    elif LowTempPrecip[i] < new_range2 and LowTempPrecip[i] >= new_range1:
+        new_conf_matrix[1][0] += 1
+    elif LowTempPrecip[i] >= new_range2:
+        new_conf_matrix[2][0] += 1
+    i += 1
+
+i = 0
+while i < len(HiLoPrecip_NoPrecip):
+    if HiLoPrecip_NoPrecip[i] < new_range1:
+         new_conf_matrix[0][1] += 1
+    elif HiLoPrecip_NoPrecip[i] < new_range2 and HiLoPrecip_NoPrecip[i] >= new_range1:
+        new_conf_matrix[1][1] += 1
+    elif HiLoPrecip_NoPrecip[i] >= new_range2:
+        new_conf_matrix[2][1] += 1
+    i += 1
+
+i = 0
+while i < len(HighTempNoPrecip):
+    if HighTempNoPrecip[i] < new_range1:
+         new_conf_matrix[0][2] += 1
+    elif HighTempNoPrecip[i] < new_range2 and HighTempNoPrecip[i] >= new_range1:
+        new_conf_matrix[1][2] += 1
+    elif HighTempNoPrecip[i] >= new_range2:
+        new_conf_matrix[2][2] += 1
+    i += 1
+
+new_conf_matrix = np.array(new_conf_matrix)
+print("Confusion matrix with 3 subgroups")
+print(new_conf_matrix)
+
+new_accuracy = (new_conf_matrix[0][0] + new_conf_matrix[1][1] + new_conf_matrix[2][2]) / sum(sum(new_conf_matrix))
+
+print("The accuracy of our classifications into 3 subgroups", new_accuracy)
+
+print("Combining the average amount of bikers crossing the bridges of high temp and low precipitation and low temp and low precipitation -> ", np.mean(HiLoPrecip_NoPrecip))
+print("The total amount of bikers crossing the bridges of high temp and low precipitation and low temp and low precipitation -> ", HiLoPrecip_NoPrecip)
+
+print("\nProblem #3\n")
+
+NumWeeks = ma.ceil(NumEl/7)
+
+Fridays = np.array(data[0, :])
+Saturdays = np.array(data[1, :])
+Sundays = np.array(data[2, :])
+Mondays = np.array(data[3, :])
+Tuesdays = np.array(data[4, :])
+Wednesdays = np.array(data[5, :])
+Thursdays = np.array(data[6, :])
+
+print(TotalPopInt)
+
+Zeros = np.zeros(NumEl)
+Coords = np.column_stack((Zeros, TotalPopInt))
+
+for z in range(NumEl):
+    TotalPopInt[z] = [TotalPopInt[z], z % 7]
+
+print(Coords)
+
+Tenth = ma.floor(NumEl / 10)
+TestList = []
+
+for o in range(Tenth):
+    TenIndex = (10 * (o+1)) - (1*o) -1
+    TestList.append(TotalPopInt[TenIndex])
+    TotalPopInt.pop(TenIndex)
+TestData = np.array(TestList)
+
+Zeros = np.zeros(NumEl - 21)
+Coords = np.array(TotalPopInt)
+
+print(TotalPopInt)
+print(len(TotalPopInt))
+
+print(TestData)
+print(TestData.shape)
+print(Coords)
+print(Coords.shape)
+
+Gausian = GaussianMixture(n_components=7, random_state=0).fit(Coords)
+print(Gausian.predict(TestData))
+print(TestData)
+
+#for point in TestData:
+#    p = Gausian.(point[0])
+#    print(p)
+
