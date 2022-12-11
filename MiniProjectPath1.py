@@ -235,11 +235,11 @@ TestData = np.array(TestList)
 Zeros = np.zeros(NumEl - 21)
 Coords = np.array(TotalPopInt)
 
-print("New shape of total pop and respective day to be evaluated as data", Coords.shape)
+print("New shape of total pop and respective day to be evaluated as data ->", Coords.shape)
 
 print("The data to be used as test data shown in the array below")
 print(TestData)
-print("Shape of test data", TestData.shape)
+print("Shape of test data ->", TestData.shape)
 
 Gausian = GaussianMixture(n_components=7, random_state=0).fit(Coords)
 Prediction = Gausian.predict(TestData)
