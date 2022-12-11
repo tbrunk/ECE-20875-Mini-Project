@@ -19,21 +19,21 @@ print(dataset_1.to_string()) #This line will print out your data
 
 # Problem 1
 
+print("The average mean deviation of each of column of data")
 print(dataset_1.mad())
+print("Median of each column of data")
 print(dataset_1.median())
+print("Avg of each column of data")
 print(dataset_1.mean())
+print("Indexing the data appropriately")
 print(dataset_1.sort_index())
-#print(dataset_1[0])
-print('LOOK', dataset_1[:2])
+
 data = np.array(dataset_1)
 
 Bridge1 = data[:, 5]
 Bridge2 = data[:, 6]
 Bridge3 = data[:, 7]
 Bridge4 = data[:, 8]
-
-print(data[0][2])
-print(Bridge1)
 
 print("Brooklyn Bridge's std ->", Bridge1.std(), "\nBrooklyn Bridge's avg ->", Bridge1.mean())
 print("Manhattan Bridge's std ->", Bridge2.std(), "\nManhattan Bridge's avg ->", Bridge2.mean())
@@ -79,7 +79,8 @@ for i in range(len(HiTemp)):
         LowTempNoPrecip.append(TotalPopInt[i])
     elif AvgTemp[i] < AvgOfAvgTemp and Precip[i] > .02:
         LowTempPrecip.append(TotalPopInt[i])
-print("\nBeginning of problem 2\n")
+
+print("\nProblem 2\n")
 print("The average temperature of our data set:", AvgOfAvgTemp)
 
 print("Total people crossing the bridges with high temperature and low precipitation -> ", HighTempNoPrecip)
@@ -216,15 +217,11 @@ Tuesdays = np.array(data[4, :])
 Wednesdays = np.array(data[5, :])
 Thursdays = np.array(data[6, :])
 
-print(TotalPopInt)
-
 Zeros = np.zeros(NumEl)
 Coords = np.column_stack((Zeros, TotalPopInt))
 
 for z in range(NumEl):
     TotalPopInt[z] = [TotalPopInt[z], z % 7]
-
-print(Coords)
 
 Tenth = ma.floor(NumEl / 10)
 TestList = []
@@ -238,19 +235,18 @@ TestData = np.array(TestList)
 Zeros = np.zeros(NumEl - 21)
 Coords = np.array(TotalPopInt)
 
-print(TotalPopInt)
-print(len(TotalPopInt))
+print("New shape of total pop and respective day to be evaluated as data", Coords.shape)
 
+print("The data to be used as test data shown in the array below")
 print(TestData)
-print(TestData.shape)
-print(Coords)
-print(Coords.shape)
+print("Shape of test data", TestData.shape)
 
 Gausian = GaussianMixture(n_components=7, random_state=0).fit(Coords)
-print(Gausian.predict(TestData))
-print(TestData)
+Prediction = Gausian.predict(TestData)
+print("The days that the model predicted ->", Prediction)
 
-#for point in TestData:
-#    p = Gausian.(point[0])
-#    print(p)
-
+Prob3Accuracy = 0
+for u in range(len(Prediction)):
+    if Prediction[u] == TestData[u, 1]:
+        Prob3Accuracy += 1
+print("Accuracy of prediction percentage ->", Prob3Accuracy/len(Prediction))
